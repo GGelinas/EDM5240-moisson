@@ -32,71 +32,72 @@ j=0
 #Création d'une boucle à l'infini pour que le script moissonne toutes les pages du catalogue 'armes', car nous ne savons pas combien il y a de pages en tout.
 while 1:
 	try:
-    #Création d'une variable avec notre url de départ
+    		#Création d'une variable avec notre url de départ
 		url = "https://www.latulippe.com/fr/catalogue/armes/?page={}".format(n)
 		#print(url)
   
-    #Une demande est envoyée à requests pour établir une connexion avec cet url, ensuite il placera le contenu dans une variable appelée 'contenu'.
+   		#Une demande est envoyée à requests pour établir une connexion avec cet url, ensuite il placera le contenu dans une variable appelée 'contenu'.
 		contenu = requests.get(url, headers=entetes)
     
-    #Une demande est envoyée à BeautifulSoup pour qu'il prenne le texte de ce contenu, du texte html, et de l'analyser. Ensuite il le mettera le résultat dans une variable appelée 'page'.
+   		#Une demande est envoyée à BeautifulSoup pour qu'il prenne le texte de ce contenu, du texte html, et de l'analyser. Ensuite il le mettera le résultat dans une variable appelée 'page'.
 		page = BeautifulSoup(contenu.text,"html.parser")
 		#print(page)
    
-    #L'info qu'on cherche est dans une page avec plusieurs items. Chaque item est dans un élément html <div>, donc on utilise le .find_all pour les réunir tous dans une liste
+   		#L'info qu'on cherche est dans une page avec plusieurs items. Chaque item est dans un élément html <div>, donc on utilise le .find_all pour les réunir tous dans une liste
 		urlDesArmes = page.find_all("div", class_="titre")
 		#print(urlDesArmes)
 		
-    #On utilise un autre .find_all pour repérer la dernière page contenant des produits étant donné que nous ne savons pas combien il y a de pages en tout dans le catalogue.
-    #Cette dernière page est caractérisée par l'absence de la balise ul.
-    ul = page.find_all("ul", class_="produits")
+	    	#On utilise un autre .find_all pour repérer la dernière page contenant des produits étant donné que nous ne savons pas combien il y a de pages en tout dans le catalogue.
+	   	#Cette dernière page est caractérisée par l'absence de la balise ul.
+    		ul = page.find_all("ul", class_="produits")
 		#print(ul)
 		
-    print ("page", n) #Permet de savoir à quelle page nous sommes rendus dans le moissonnage.
+    		print ("page", n) #Permet de savoir à quelle page nous sommes rendus dans le moissonnage.
 		
 		c+=1 #Compteur pour le numéro de la page
 		n+=1 #Compteur du numéro de page de l'url
 		
-    #Création d'une boucle qui consultera chacun des produits affichés dans le catalogue et en extraiera tous les produits qui auront la mention de 'semi-automatique'. 
+    		#Création d'une boucle qui consultera chacun des produits affichés dans le catalogue et en extraiera tous les produits qui auront la mention de 'semi-automatique'. 
 		for urlArme in urlDesArmes:
 			try:
-        #Création d'une liste qui contiendra les urls de chacun des produits.
+       				#Création d'une liste qui contiendra les urls de chacun des produits.
 				Arme = [] 
-        url2 = urlArme.a["href"] #On va chercher l'hyperlien vers la sous-page qui contient plus d'infos sur les produits.
+        			url2 = urlArme.a["href"] #On va chercher l'hyperlien vers la sous-page qui contient plus d'infos sur les produits.
 				#print (url2)
 				url2 = "https://www.latulippe.com" + url2
 				#print (url2)
 				Arme.append(url2)
 				#print(Arme)
 
-        #Une demande est envoyée à requests pour établir une connexion avec l'url2, ensuite il placera le contenu dans une variable appelée 'contenu2'.
+        			#Une demande est envoyée à requests pour établir une connexion avec l'url2, ensuite il placera le contenu dans une variable appelée 'contenu2'.
 				contenu2 = requests.get(url2)
-        #Une demande est envoyée à BeautifulSoup pour qu'il prenne le texte de ce contenu, du texte html, et de l'analyser. Ensuite il le mettera le résultat dans une variable appelée 'page2'.
+        			#Une demande est envoyée à BeautifulSoup pour qu'il prenne le texte de ce contenu, du texte html, et de l'analyser. Ensuite il le mettera le résultat dans une variable appelée 'page2'.
 				page2 = BeautifulSoup(contenu2.text, "html.parser")
 				#print (page2)
 			
-        #Création d'une liste qui contiendra le nom des items(produits), qui auront dans leur titre les mots 'semi-automatique', et leur prix.
+        			#Création d'une liste qui contiendra le nom des items(produits), qui auront dans leur titre les mots 'semi-automatique', et leur prix.
 				semiautomatique = []
 				titre = page2.title.text.split("|")[0].strip() #On va chercher le titre de l'onglet pour qu'il soit plus lisible. 
 				#print(titre)
 				semiautomatique.append(titre)
 				#print(semiautomatique)
 				
-        #On utilise un .find pour trouver le prix des produits recensés et on le rattache à la liste semiautomatique.
+        			#On utilise un .find pour trouver le prix des produits recensés et on le rattache à la liste semiautomatique.
 				prix = page2.find("b", itemprop="price").text
 				#print(prix)
 				prix = prix.replace(u'\xa0', u' ') #Permet d'enlever les caractères '\xa0' pour un meilleur affichage dans la liste.
 				semiautomatique.append(prix)
 				#print(semiautomatique)
 				
+				#On demande au script de chercher parmi tous les items ceux qui ont la mention des mots 'semi-automatique'.
 				findSA = semiautomatique[0].find("semi-automatique")
         
-        #Création d'une condition pour déterminer les items qui contiennent les mots 'semi-automatique'.
+        			#Création d'une condition pour déterminer les items qui contiennent les mots 'semi-automatique'.
 				if findSA != -1:
 					j+=1 #Compteur pour le nombre d'items recensés
 					print(j," ","page",c," ",semiautomatique)
 					
-          #Inscription de la liste semiautomatique dans une nouvelle ligne d'un fichier csv.
+          				#Inscription de la liste semiautomatique dans une nouvelle ligne d'un fichier csv.
 					armesmoisson = open(fichier,"a")
 					coucou = csv.writer(armesmoisson)
 					coucou.writerow(semiautomatique)
