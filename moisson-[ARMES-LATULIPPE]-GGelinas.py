@@ -147,15 +147,14 @@ while 1:
 
 		urlDesArmes = page.find_all("div", class_="titre")
 		#print(urlDesArmes)
-		#print(len(urlDesArmes))
-		
+				
 		ul = page.find_all("ul", class_="produits")
 		#print(ul)
 		
 		print ("page", n)
 		
-		c+=1 #Compteur pour le numéro de la page
-		n+=1 #Compteur du numéro de page de l'url
+		c+=1 
+		n+=1 
 		
 
 		for urlArme in urlDesArmes:
@@ -187,7 +186,7 @@ while 1:
 				findSA = semiautomatique[0].find("semi-automatique")
 
 				if findSA != -1:
-					j+=1 #Compteur pour le nombre d'items recensés
+					j+=1 
 					print(j," ","page",c," ",semiautomatique)
 													
 					armesmoisson = open(fichier,"a")
