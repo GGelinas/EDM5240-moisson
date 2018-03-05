@@ -116,3 +116,95 @@ while 1:
 		print ("Erreur programme")
 		break
 
+'''
+*******MON SCRIPT SANS LES COMMENTAIRES*******
+
+# coding: utf-8
+
+import csv
+import requests
+from bs4 import BeautifulSoup
+
+fichier = "latulippearmes.csv"
+
+entetes = {
+	"User-Agent":"Genevieve Gelinas - Requête envoyée dans le cadre d'un cours de journalisme informatique à l'UQAM (EDM5240)",
+	"From":"gelinas.genevieve@gmail.com"
+}
+
+n=1
+c=0
+j=0
+
+while 1:
+	try:
+		url = "https://www.latulippe.com/fr/catalogue/armes/?page={}".format(n)
+		#print(url)
+
+		contenu = requests.get(url, headers=entetes)
+		page = BeautifulSoup(contenu.text,"html.parser")
+		#print(page)
+
+		urlDesArmes = page.find_all("div", class_="titre")
+		#print(urlDesArmes)
+		#print(len(urlDesArmes))
+		
+		ul = page.find_all("ul", class_="produits")
+		#print(ul)
+		
+		print ("page", n)
+		
+		c+=1 #Compteur pour le numéro de la page
+		n+=1 #Compteur du numéro de page de l'url
+		
+
+		for urlArme in urlDesArmes:
+			try:
+				Arme = []
+				url2 = urlArme.a["href"]
+				#print (url2)
+				url2 = "https://www.latulippe.com" + url2
+				#print (url2)
+				Arme.append(url2)
+				#print(Arme)
+
+				contenu2 = requests.get(url2)
+				page2 = BeautifulSoup(contenu2.text, "html.parser")
+				#print (page2)
+			
+				semiautomatique = []
+				titre = page2.title.text.split("|")[0].strip()
+				#print(titre)
+				semiautomatique.append(titre)
+				#print(semiautomatique)
+				
+				prix = page2.find("b", itemprop="price").text
+				#print(prix)
+				prix = prix.replace(u'\xa0', u' ')
+				semiautomatique.append(prix)
+				#print(semiautomatique)
+				
+				findSA = semiautomatique[0].find("semi-automatique")
+
+				if findSA != -1:
+					j+=1 #Compteur pour le nombre d'items recensés
+					print(j," ","page",c," ",semiautomatique)
+													
+					armesmoisson = open(fichier,"a")
+					coucou = csv.writer(armesmoisson)
+					coucou.writerow(semiautomatique)
+
+			except:
+				print("Erreur programme")
+		
+		
+		flag = bool(ul)	
+		if flag == False:
+			print("Fin du programme")
+			break
+
+
+	except:
+		print ("Erreur programme")
+		break
+'''
